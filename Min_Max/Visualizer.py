@@ -60,6 +60,7 @@ def main():
 
     # Visualize the results
     visualize_chessboard(fen, best_move, evaluation)
+    print(best_move)
 
 if __name__ == "__main__":
     main()
