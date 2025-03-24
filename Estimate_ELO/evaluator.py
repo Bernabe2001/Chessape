@@ -4,7 +4,7 @@ import subprocess
 import os
 
 # --- Global Stockfish setup (do not change execution) ---
-stockfish_executable = os.path.abspath("./stockfish/stockfish-ubuntu-x86-64-avx2")
+stockfish_executable = os.path.abspath("../../stockfish/stockfish-ubuntu-x86-64-avx2")
 stockfish = pexpect.spawn(stockfish_executable)
 
 model_executable = os.path.abspath("../Models/Chessape_1.0_4")
