@@ -1,25 +1,34 @@
 import subprocess, time, select, sys
 
 # Ask user for mate level and number of tests.
-mate_level = input("Enter mate level (2, 3, or 4): ").strip()
+mate_level = input("Enter mate level (2, 3, 4, 5 or 6): ").strip()
+version = input("Enter version: ").strip()
 
 # Map mate level to engine executable and test file.
 if mate_level == "2":
-    engine_path = "../Models/Chessape_1.0_4_DEBUG"
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
     test_file_path = "./Data/Mates/Mate_in_2.txt"
     max_tests = 221
 elif mate_level == "3":
-    engine_path = "../Models/Chessape_1.0_6_DEBUG"
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
     test_file_path = "./Data/Mates/Mate_in_3.txt"
     max_tests = 459
 elif mate_level == "4":
-    engine_path = "../Models/Chessape_1.0_8_DEBUG"
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
     test_file_path = "./Data/Mates/Mate_in_4.txt"
     max_tests = 445
+elif mate_level == "5":
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
+    test_file_path = "./Data/Mates/Mate_in_5.txt"
+    max_tests = 34
+elif mate_level == "6":
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
+    test_file_path = "./Data/Mates/Mate_in_6.txt"
+    max_tests = 53
 else:
     print("Invalid mate level. Using mate in 3.")
-    engine_path = "../Models/Chessape_1.0_6_DEBUG"
-    test_file_path = "./Data/Mates/Mate_in_2.txt"
+    engine_path = f"../Models/Chessape_{version}_DEBUG"
+    test_file_path = "./Data/Mates/Mate_in_3.txt"
     max_tests = 459
 
 num_tests_input = input(f"How many tests? ({max_tests} tests available) ").strip()
@@ -102,6 +111,8 @@ def run_test(test_fen):
                 break  # End-of-file reached.
             if "2147483647" in line:
                 found = True
+                break
+            if "bestmove" in line:
                 break
 
         # Cleanly shut down the engine.

@@ -28,6 +28,10 @@ constexpr int HASH_TABLE_SIZE = 1000000;
 #define INCREMENTAL_EV 1
 #endif
 
+#ifndef EXTRA
+#define EXTRA 5
+#endif
+
 // Debug macro: prints only when compiled with -DDEBUG
 #ifdef DEBUG
   #define DEBUG_PRINT(x) (std::cerr << x << std::endl)
@@ -261,28 +265,68 @@ int white(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
         return 0;
     }
 
-    Movelist moves;
-    movegen::legalmoves(moves, board);
+    Movelist unordered_moves;
+    movegen::legalmoves(unordered_moves, board);
+    
     // Terminal condition 3
-    if (moves.empty()) {
+    if (unordered_moves.empty()) {
         GameResult result = board.isGameOver().second;
         if (result == GameResult::LOSE) return -INFINITY_VAL;
         else if (result == GameResult::DRAW) return 0;
         else return INFINITY_VAL;
     }
 
-    // Terminal condition 4
-    if (depth == 0) {
-        #if INCREMENTAL_EV == 1
-            return currentEval;
-        #else
-            return evaluateBoard(board);
-        #endif
+    Movelist check_and_capture;
+    Movelist check;
+    Movelist capture;
+    Movelist quiet;
+
+    for (const auto& move : unordered_moves) {
+
+        board.makeMove(move);
+        bool is_check = board.inCheck();
+        board.unmakeMove(move);
+    
+        bool is_capture = board.isCapture(move) && move.typeOf() != Move::CASTLING;
+    
+        if (is_check && is_capture) {
+            check_and_capture.add(move);
+        } else if (is_capture) {
+            capture.add(move);
+        } else if (is_check) {
+            check.add(move);
+        } else {
+            quiet.add(move);
+        }
     }
 
+    Movelist moves;
+    for (const auto& m : check_and_capture) moves.add(m);
+    for (const auto& m : check) moves.add(m);
+    for (const auto& m : capture) moves.add(m);
+
     Move dummy;
-    int best = -INFINITY_VAL;
     bestMove = moves[0];
+    int best = -INFINITY_VAL;
+    
+    // Terminal condition 4: Quiescence search
+    if (depth <= 0) {
+        bool in_check = board.inCheck();
+        if (depth <= -EXTRA || (moves.empty() && !in_check)) { //not in check, quiet or too deep
+            #if INCREMENTAL_EV == 1
+                return currentEval;
+            #else
+                return evaluateBoard(board);
+            #endif
+        }
+        else if (in_check) for (const auto& m : quiet) moves.add(m); //in check 
+        else  { //not in check, quiet
+            if (currentEval >= beta) return currentEval;
+            best = currentEval;
+        }
+    }
+    else for (const auto& m : quiet) moves.add(m); //positive depth
+
     for (auto &move : moves) {
         int evalDelta = 0;
         #if INCREMENTAL_EV == 1
@@ -313,10 +357,8 @@ int white(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     return best;
 }
 
-
-
 int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &currentEval, vector<uint8_t> &positionCounts) {
-    // Terminal condition 1 (Missing Threefold Rep)
+    // Terminal condition 1
     if (board.isHalfMoveDraw()) {
         GameResult result = board.getHalfMoveDrawType().second;
         if (result == GameResult::LOSE) return INFINITY_VAL;
@@ -328,28 +370,68 @@ int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     uint8_t rep = positionCounts[zobrist_b];
     if (rep == 2) return 0;
 
-    Movelist moves;
-    movegen::legalmoves(moves, board);
+    Movelist unordered_moves;
+    movegen::legalmoves(unordered_moves, board);
+
     // Terminal condition 3
-    if (moves.empty()) {
+    if (unordered_moves.empty()) {
         GameResult result = board.isGameOver().second;
         if (result == GameResult::LOSE) return INFINITY_VAL;
         else if (result == GameResult::DRAW) return 0;
         else return -INFINITY_VAL;
     }
 
-    // Terminal condition 4
-    if (depth == 0) {
-        #if INCREMENTAL_EV == 1
-            return currentEval;
-        #else
-            return evaluateBoard(board);
-        #endif
+    Movelist check_and_capture;
+    Movelist check;
+    Movelist capture;
+    Movelist quiet;
+
+    for (const auto& move : unordered_moves) {
+
+        board.makeMove(move);
+        bool is_check = board.inCheck();
+        board.unmakeMove(move);
+    
+        bool is_capture = board.isCapture(move) && move.typeOf() != Move::CASTLING;
+    
+        if (is_check && is_capture) {
+            check_and_capture.add(move);
+        } else if (is_capture) {
+            capture.add(move);
+        } else if (is_check) {
+            check.add(move);
+        } else {
+            quiet.add(move);
+        }
     }
 
+    Movelist moves;
+    for (const auto& m : check_and_capture) moves.add(m);
+    for (const auto& m : check) moves.add(m);
+    for (const auto& m : capture) moves.add(m);
+
     Move dummy;
-    int best = INFINITY_VAL;
     bestMove = moves[0];
+    int best = INFINITY_VAL;
+
+    // Terminal condition 4: Quiescence search
+    if (depth <= 0) {
+        bool in_check = board.inCheck();
+        if (depth <= -EXTRA || (moves.empty() && !in_check)) { //not in check, quiet or too deep
+            #if INCREMENTAL_EV == 1
+                return currentEval;
+            #else
+                return evaluateBoard(board);
+            #endif
+        }
+        else if (in_check) for (const auto& m : quiet) moves.add(m); //in check 
+        else  { //not in check, quiet
+            if (currentEval <= alpha) return currentEval;
+            best = currentEval;
+        }
+    }
+    else for (const auto& m : quiet) moves.add(m); //positive depth
+
     for (auto &move : moves) {
         int evalDelta = 0;
         #if INCREMENTAL_EV == 1
@@ -380,6 +462,7 @@ int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     return best;
 }
 
+
 //-------------------------------------------------------------
 // UCI Command Handler: Processes UCI protocol commands.
 //-------------------------------------------------------------
@@ -389,7 +472,7 @@ void handleUCI() {
     vector<uint8_t> positionCounts(HASH_TABLE_SIZE,0);
     while (getline(cin, command)) {
         if (command == "uci") {
-            cout << "id name Chessape_1.0" << endl;
+            cout << "id name Chessape_1.2" << endl;
             cout << "id author Bernabé Iturralde Jara" << endl;
             cout << "uciok" << endl;
         } else if (command == "isready") {

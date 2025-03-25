@@ -261,8 +261,16 @@ int white(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
         return 0;
     }
 
+    Movelist moves_capture;
+    Movelist moves_aux;
     Movelist moves;
-    movegen::legalmoves(moves, board);
+    movegen::legalmoves<movegen::MoveGenType::QUIET>(moves, board);
+    movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moves_aux, board);
+    for (auto &move: moves_aux){
+        if (move.typeOf() != Move::CASTLING) moves_capture.add(move);
+        moves.add(move);
+    }
+    
     // Terminal condition 3
     if (moves.empty()) {
         GameResult result = board.isGameOver().second;
@@ -271,18 +279,27 @@ int white(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
         else return INFINITY_VAL;
     }
 
-    // Terminal condition 4
-    if (depth == 0) {
-        #if INCREMENTAL_EV == 1
-            return currentEval;
-        #else
-            return evaluateBoard(board);
-        #endif
-    }
-
     Move dummy;
-    int best = -INFINITY_VAL;
     bestMove = moves[0];
+    int best = -INFINITY_VAL;
+
+    // Terminal condition 4: Quiescence search
+    if (depth <= 0) {
+        if (moves_capture.empty()) {
+            #if INCREMENTAL_EV == 1
+                return currentEval;
+            #else
+                return evaluateBoard(board);
+            #endif
+        }
+        if (currentEval >= beta) {
+            return currentEval;
+        }
+        moves = moves_capture;
+        best = currentEval;
+    }
+    // For non-quiescence search depths, moves remain as generated.
+
     for (auto &move : moves) {
         int evalDelta = 0;
         #if INCREMENTAL_EV == 1
@@ -313,8 +330,6 @@ int white(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     return best;
 }
 
-
-
 int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &currentEval, vector<uint8_t> &positionCounts) {
     // Terminal condition 1 (Missing Threefold Rep)
     if (board.isHalfMoveDraw()) {
@@ -328,8 +343,16 @@ int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     uint8_t rep = positionCounts[zobrist_b];
     if (rep == 2) return 0;
 
+    Movelist moves_capture;
+    Movelist moves_aux;
     Movelist moves;
-    movegen::legalmoves(moves, board);
+    movegen::legalmoves<movegen::MoveGenType::QUIET>(moves, board);
+    movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moves_aux, board);
+    for (auto &move: moves_aux){
+        if (move.typeOf() != Move::CASTLING) moves_capture.add(move);
+        moves.add(move);
+    }
+    
     // Terminal condition 3
     if (moves.empty()) {
         GameResult result = board.isGameOver().second;
@@ -338,18 +361,26 @@ int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
         else return -INFINITY_VAL;
     }
 
-    // Terminal condition 4
-    if (depth == 0) {
-        #if INCREMENTAL_EV == 1
+    Move dummy;
+    bestMove = moves[0];
+    int best = INFINITY_VAL;
+
+    // Terminal condition 4: Quiescence search
+    if (depth <= 0) {
+        if (moves_capture.empty()) {
+            #if INCREMENTAL_EV == 1
+                return currentEval;
+            #else
+                return evaluateBoard(board);
+            #endif
+        }
+        if (currentEval <= alpha) {
             return currentEval;
-        #else
-            return evaluateBoard(board);
-        #endif
+        }
+        moves = moves_capture;
+        best = currentEval;
     }
 
-    Move dummy;
-    int best = INFINITY_VAL;
-    bestMove = moves[0];
     for (auto &move : moves) {
         int evalDelta = 0;
         #if INCREMENTAL_EV == 1
@@ -380,6 +411,7 @@ int black(Board &board, int depth, int alpha, int beta, Move &bestMove, int &cur
     return best;
 }
 
+
 //-------------------------------------------------------------
 // UCI Command Handler: Processes UCI protocol commands.
 //-------------------------------------------------------------
@@ -389,7 +421,7 @@ void handleUCI() {
     vector<uint8_t> positionCounts(HASH_TABLE_SIZE,0);
     while (getline(cin, command)) {
         if (command == "uci") {
-            cout << "id name Chessape_1.0" << endl;
+            cout << "id name Chessape_1.1" << endl;
             cout << "id author Bernabé Iturralde Jara" << endl;
             cout << "uciok" << endl;
         } else if (command == "isready") {
