@@ -1,14 +1,9 @@
+#!/usr/bin/env python3
+
 import pexpect
 import chess
 import subprocess
 import os
-
-# --- Global Stockfish setup (do not change execution) ---
-stockfish_executable = os.path.abspath("../../stockfish/stockfish-ubuntu-x86-64-avx2")
-stockfish = pexpect.spawn(stockfish_executable)
-
-model_executable = os.path.abspath("../Models/Chessape_1.0_4")
-model = pexpect.spawn(model_executable)
 
 # Estimated Stockfish ELO ratings for Skill Levels (approximate)
 STOCKFISH_ELO = {
@@ -17,40 +12,38 @@ STOCKFISH_ELO = {
     18: 3050, 19: 3150, 20: 3250
 }
 
-# Simulated ELO range (500 to 1300) using movetime and depth limitations
+# Simulated ELO range (550 to 1350) using movetime limitation
 SIMULATED_ELO = {
-    550: {"movetime": 10, "depth": 1},
-    650: {"movetime": 10, "depth": 2},
-    750: {"movetime": 20, "depth": 2},
-    850: {"movetime": 40, "depth": 2},
-    950: {"movetime": 40, "depth": 3},
-    1050: {"movetime": 80, "depth": 3},
-    1150: {"movetime": 150, "depth": 3},
-    1250: {"movetime": 150, "depth": 4},
-    1350: {"movetime": 300, "depth": 4},
+    550: {"movetime": 2},
+    650: {"movetime": 5},
+    750: {"movetime": 10},
+    850: {"movetime": 20},
+    950: {"movetime": 40},
+    1050: {"movetime": 80},
+    1150: {"movetime": 150},
+    1250: {"movetime": 300},
+    1350: {"movetime": 600}
 }
 
-def stockfish_move(moves, skill_level, depth, movetime=1000):
+def stockfish_move(moves, skill_level, movetime=1000):
     stockfish.sendline(f"setoption name Skill Level value {skill_level}")
-    if depth:
-        stockfish.sendline(f"setoption name Depth value {depth}")
     stockfish.sendline(f"position startpos moves {' '.join(moves)}")
     stockfish.sendline(f"go movetime {movetime}")
     stockfish.expect(r'bestmove (\S+)', timeout=60)
     return stockfish.match.group(1).decode()
 
-def model_move(moves, engine_path):
+def model_move(moves):
+    """
+    Spawns the model engine, sends UCI commands, and gets the best move.
+    For simplicity, spawns the model once and reuses it.
+    """
     model.sendline(f"position startpos moves {' '.join(moves)}")
     model.sendline("go")
     try:
-        index = model.expect([r'bestmove (\S+)', pexpect.EOF, pexpect.TIMEOUT], timeout=60)
+        model.expect(r'bestmove (\S+)', timeout=60)
     except Exception as e:
-        print("Error waiting for bestmove:", e)
-        raise
-    if index != 0:
-        print("Model output error or unexpected termination.")
-        print("Buffer:", model.before.decode())
-        raise Exception("Model failed to produce bestmove")
+        print("Model failed to return move:", e)
+        return None
     return model.match.group(1).decode()
 
 def get_move_generic(engine, moves):
@@ -107,6 +100,10 @@ def game_end(moves):
             return "LOSE"
         else:
             return "DRAW"
+    if board.can_claim_fifty_moves():
+        return "DRAW"
+    if board.can_claim_threefold_repetition():
+            return "DRAW"
     return "NONE"
 
 def evaluate_mode(engine_path):
@@ -140,11 +137,12 @@ def evaluate_mode(engine_path):
         if engine_is_white:
             while True:
                 # Engine (White) move
-                engine_move = model_move(moves, engine_path)
+                engine_move = model_move(moves)
                 if not engine_move:
                     print("Engine failed to generate a move.")
                     return
                 moves.append(engine_move)
+                print(engine_move)
                 result = game_end(moves)
                 if result != "NONE":
                     # result from white's perspective: WIN means engine win.
@@ -160,11 +158,12 @@ def evaluate_mode(engine_path):
                 # Stockfish (Black) move
                 if current_elo >= 1350:
                     skill_level = min(STOCKFISH_ELO, key=lambda x: abs(STOCKFISH_ELO[x] - current_elo))
-                    sf_move = stockfish_move(moves, skill_level=skill_level, depth=None, movetime=500)
+                    sf_move = stockfish_move(moves, skill_level=skill_level, movetime=1000)
                 else:
                     params = SIMULATED_ELO.get(current_elo)
-                    sf_move = stockfish_move(moves, skill_level=1, depth=params["depth"], movetime=params["movetime"])
+                    sf_move = stockfish_move(moves, skill_level=1, movetime=params["movetime"])
                 moves.append(sf_move)
+                print(sf_move)
                 result = game_end(moves)
                 if result != "NONE":
                     if result == "WIN":
@@ -181,11 +180,12 @@ def evaluate_mode(engine_path):
                 # Stockfish (White) move
                 if current_elo >= 1350:
                     skill_level = min(STOCKFISH_ELO, key=lambda x: abs(STOCKFISH_ELO[x] - current_elo))
-                    sf_move = stockfish_move(moves, skill_level=skill_level, depth=None, movetime=500)
+                    sf_move = stockfish_move(moves, skill_level=skill_level, movetime=1000)
                 else:
                     params = SIMULATED_ELO.get(current_elo)
-                    sf_move = stockfish_move(moves, skill_level=1, depth=params["depth"], movetime=params["movetime"])
+                    sf_move = stockfish_move(moves, skill_level=1, movetime=params["movetime"])
                 moves.append(sf_move)
+                print(sf_move)
                 result = game_end(moves)
                 if result != "NONE":
                     # result from white's perspective: WIN means Stockfish wins.
@@ -199,11 +199,12 @@ def evaluate_mode(engine_path):
                     break
 
                 # Engine (Black) move
-                engine_move = model_move(moves, engine_path)
+                engine_move = model_move(moves)
                 if not engine_move:
                     print("Engine failed to generate a move.")
                     return
                 moves.append(engine_move)
+                print(engine_move)
                 result = game_end(moves)
                 if result != "NONE":
                     if result == "WIN":
@@ -216,7 +217,7 @@ def evaluate_mode(engine_path):
                     break
 
         log_game(moves, "Evaluation", result)
-        print(moves)
+        #print(moves)
         print(f"Score - Engine: {ai_wins}, Stockfish: {st_wins}")
 
         # Toggle the engine's color for the next game.
@@ -276,16 +277,17 @@ def match_mode(engine_path1, engine_path2):
             # White moves first.
             move = get_move_generic(white_engine, moves)
             moves.append(move)
+            print(move)
             result = game_end(moves)
             if result != "NONE":
                 break
             # Black moves.
             move = get_move_generic(black_engine, moves)
             moves.append(move)
+            print(move)
             result = game_end(moves)
             if result != "NONE":
                 break
-        print(moves)
         # Interpret result from White's perspective.
         if result == "WIN":
             # White wins.
@@ -307,27 +309,36 @@ def match_mode(engine_path1, engine_path2):
             draws += 1
             print("Game drawn")
 
-    print("\nMatch results:")
+    print("\nMatch result: " + f"{engine1_wins + 0.5*draws}" + " - " + f"{engine1_wins + 0.5*draws}")
     print(f"Engine 1 wins: {engine1_wins} ({(engine1_wins / num_matches) * 100:.2f}%)")
     print(f"Engine 2 wins: {engine2_wins} ({(engine2_wins / num_matches) * 100:.2f}%)")
     print(f"Draws: {draws} ({(draws / num_matches) * 100:.2f}%)")
 
 def main():
-    # Ask which mode to run: evaluation (vs. Stockfish) or match (model vs. model match)
-    mode = input("Choose mode ('evaluation' for engine vs. Stockfish or 'match' for model vs. model match): ").strip().lower()
+    global stockfish
+    stockfish_executable = os.path.abspath("../../stockfish/stockfish-ubuntu-x86-64-avx2")
+    stockfish = pexpect.spawn(stockfish_executable)
 
-    if mode == "evaluation":
-        engine_name = input("Enter the name of the engine in the Models folder: ").strip()
-        engine_path = os.path.abspath(os.path.join("..", "Models", engine_name))
-        evaluate_mode(engine_path)
-    elif mode == "match":
-        engine_name1 = input("Enter the name of the first engine in the Models folder: ").strip()
-        engine_path1 = os.path.abspath(os.path.join("..", "Models", engine_name1))
-        engine_name2 = input("Enter the name of the second engine in the Models folder: ").strip()
-        engine_path2 = os.path.abspath(os.path.join("..", "Models", engine_name2))
-        match_mode(engine_path1, engine_path2)
-    else:
-        print("Invalid mode selected. Please choose either 'evaluation' or 'match'.")
+    var = True
+    while (var):
+        mode = input("Choose mode 'evaluation' (or 'e') for engine vs. Stockfish, 'match' (or 'm') for model vs. model match): ").strip().lower()
+        if mode == "e" or mode == "eval" or mode == "evaluation":
+            engine_name = input("Enter the name of the engine (e.g. Chessape_1.2_4_5): ").strip()
+            engine_path = os.path.abspath(os.path.join("..", "Models/bin", engine_name))
+            global model
+            model = pexpect.spawn(engine_path)
+            evaluate_mode(engine_path)
+            var = False
+        elif (mode == "match" or mode == "m"):
+            engine_name1 = input("Enter the name of the first engine (e.g. Chessape_1.0_4): ").strip()
+            engine_path1 = os.path.abspath(os.path.join("..", "Models/bin", engine_name1))
+            engine_name2 = input("Enter the name of the second engine (e.g. Chessape_1.2_2_5): ").strip()
+            engine_path2 = os.path.abspath(os.path.join("..", "Models/bin", engine_name2))
+            match_mode(engine_path1, engine_path2)
+            var = False
+        else:
+            print("Invalid mode selected.")
+    return
 
 if __name__ == "__main__":
     main()

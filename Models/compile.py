@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import sys
 import os
@@ -36,7 +38,35 @@ def parse_depth_input(s):
             print("Invalid input for depth. Please provide a range (x-y) or comma separated integers.", file=sys.stderr)
             sys.exit(1)
 
-def compile_versions(base_filename, depths, compile_normal, compile_debug, compile_test, max_depth):
+def compile_version_new(base_filename, compile_normal, compile_debug, compile_test):
+    if compile_debug:
+        cmd = ["g++", "-std=c++17", "-O3", "-D", "DEBUG", "-march=native",
+            "-flto", "-o", f"bin/Chessape_{base_filename}_DEBUG", f"Chessape_{base_filename}.cpp"]
+        print("Compiling:", ' '.join(cmd))
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
+            return False
+    if compile_normal:
+        cmd = ["g++", "-std=c++17", "-O3", "-march=native",
+            "-flto", "-o", f"bin/Chessape_{base_filename}", f"Chessape_{base_filename}.cpp"]
+        print("Compiling:", ' '.join(cmd))
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
+            return False
+    if compile_test:
+        cmd = ["g++", "-std=c++17", "-O3", "-D", "TEST", "-march=native",
+            "-flto", "-o", f"bin/Chessape_{base_filename}_TEST", f"Chessape_{base_filename}.cpp"]
+        print("Compiling:", ' '.join(cmd))
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
+            return False
+    return True
+
+
+def compile_versions(base_filename, depths, compile_normal, compile_debug, compile_test):
     for depth in depths:
         if compile_debug:
             cmd = [
@@ -44,17 +74,16 @@ def compile_versions(base_filename, depths, compile_normal, compile_debug, compi
                 "-std=c++17",
                 "-O3",
                 "-D", "DEBUG",
-                "-D", f"DEPTH={depth}",
-                "-D", f"EXTRA={max_depth[1:]}",
+                "-D", f"MIN_DEPTH={depth}",
                 "-march=native",
                 "-flto",
-                "-o", f"bin/{base_filename}_{depth}{max_depth}_DEBUG",
-                f"{base_filename}.cpp"
+                "-o", f"bin/Chessape_{base_filename}_{depth}_DEBUG",
+                f"Chessape_{base_filename}.cpp"
             ]
             print("Compiling:", ' '.join(cmd))
             result = subprocess.run(cmd)
             if result.returncode != 0:
-                print(f"Failed to compile DEBUG version for {base_filename} with DEPTH={depth}", file=sys.stderr)
+                print(f"Failed to compile DEBUG version for Chessape_{base_filename} with DEPTH={depth}", file=sys.stderr)
                 return False
 
         if compile_normal:
@@ -62,17 +91,16 @@ def compile_versions(base_filename, depths, compile_normal, compile_debug, compi
                 "g++",
                 "-std=c++17",
                 "-O3",
-                "-D", f"DEPTH={depth}",
-                "-D", f"EXTRA={max_depth[1:]}",
+                "-D", f"MIN_DEPTH={depth}",
                 "-march=native",
                 "-flto",
-                "-o", f"bin/{base_filename}_{depth}{max_depth}",
-                f"{base_filename}.cpp"
+                "-o", f"bin/Chessape_{base_filename}_{depth}",
+                f"Chessape_{base_filename}.cpp"
             ]
             print("Compiling:", ' '.join(cmd))
             result = subprocess.run(cmd)
             if result.returncode != 0:
-                print(f"Failed to compile NORMAL version for {base_filename} with DEPTH={depth}", file=sys.stderr)
+                print(f"Failed to compile NORMAL version for Chessape_{base_filename} with DEPTH={depth}", file=sys.stderr)
                 return False
 
         if compile_test:
@@ -81,48 +109,50 @@ def compile_versions(base_filename, depths, compile_normal, compile_debug, compi
                 "-std=c++17",
                 "-O3",
                 "-D", "TEST",
-                "-D", f"DEPTH={depth}",
-                "-D", f"EXTRA={max_depth[1:]}",
+                "-D", f"MIN_DEPTH={depth}",
                 "-march=native",
                 "-flto",
-                "-o", f"bin/{base_filename}_{depth}{max_depth}_TEST",
-                f"{base_filename}.cpp"
+                "-o", f"bin/Chessape_{base_filename}_{depth}_TEST",
+                f"Chessape_{base_filename}.cpp"
             ]
             print("Compiling:", ' '.join(cmd))
             result = subprocess.run(cmd)
             if result.returncode != 0:
-                print(f"Failed to compile TEST version for {base_filename} with DEPTH={depth}", file=sys.stderr)
+                print(f"Failed to compile TEST version for Chessape_{base_filename} with DEPTH={depth}", file=sys.stderr)
                 return False
     return True
 
 if __name__ == "__main__":
-    depth_input = input("Enter depths to compile (either a closed interval x-y or a comma separated list, e.g. 2,7,10): ")
-    depths = parse_depth_input(depth_input)
 
-    file_input = input("Enter the base file name(s) to compile (separated by a space, e.g. Chessape_1.0): ")
+    file_input = input("Enter the version(s) to compile (separated by a space, e.g. 1.0 1.1): ")
     base_files = file_input.split()
 
-    compile_choice = input("Which versions do you want to compile? Options: NORMAL, DEBUG, TEST, or ALL: ").strip().upper()
-    compile_normal = compile_debug = compile_test = False
-    if compile_choice == "ALL":
-        compile_normal = compile_debug = compile_test = True
-    elif compile_choice == "NORMAL":
-        compile_normal = True
-    elif compile_choice == "DEBUG":
-        compile_debug = True
-    elif compile_choice == "TEST":
-        compile_test = True
-    else:
-        print("Invalid compile version option.", file=sys.stderr)
-        sys.exit(1)
-
-    max_depth = ""
-    if file_input == "Chessape_1.2":
-        max_depth = "_" + input("Enter maximum extra depth: ")
-
     for base_file in base_files:
-        if compile_versions(base_file, depths, compile_normal, compile_debug, compile_test, max_depth):
-            print(f"All selected variants compiled successfully for {base_file}!")
+        compile_choice = input(f"Which versions do you want to compile for Chessape_{base_file}? Options: NORMAL, DEBUG, TEST, or ALL: ").strip().upper()
+        compile_normal = compile_debug = compile_test = False
+        if compile_choice == "ALL":
+            compile_normal = compile_debug = compile_test = True
+        elif compile_choice == "NORMAL":
+            compile_normal = True
+        elif compile_choice == "DEBUG":
+            compile_debug = True
+        elif compile_choice == "TEST":
+            compile_test = True
         else:
-            print(f"Compilation failed for {base_file}.", file=sys.stderr)
+            print("Invalid compile version option.", file=sys.stderr)
             sys.exit(1)
+
+        if (base_file == "1.0" or base_file == "1.1"):
+            depth_input = input(f"Enter depths to compile for Chessape_{base_file} (either a closed interval x-y or a comma separated list, e.g. 2,7,10): ")
+            depths = parse_depth_input(depth_input)
+            if compile_versions(base_file, depths, compile_normal, compile_debug, compile_test):
+                print(f"All selected variants compiled successfully for {base_file}!")
+            else:
+                print(f"Compilation failed for {base_file}.", file=sys.stderr)
+                sys.exit(1)
+        else:
+            if compile_version_new(base_file, compile_normal, compile_debug, compile_test):
+                print(f"All selected variants compiled successfully for {base_file}!")
+            else:
+                print(f"Compilation failed for {base_file}.", file=sys.stderr)
+                sys.exit(1)

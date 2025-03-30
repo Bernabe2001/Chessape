@@ -43,7 +43,7 @@ r4k2/5rb1/qp1p1n2/3P3p/5p2/P2QP2P/1B1N1P1R/1K4R1 b - - 2 32
 )
 
 (Test 12
-2R2r1k/8/2pq1b1p/2n2B2/1r2fP2/4P3/1P5P/2BQ1KNR w - - 1 31
+2R2r1k/8/2pq1b1p/2n2B2/1r2pP2/4P3/1P5P/2BQ1KNR w - - 1 31
 )
 
 (Test 13

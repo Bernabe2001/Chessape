@@ -16,8 +16,8 @@ using Clock = std::chrono::steady_clock;
 constexpr int INFINITY_VAL = numeric_limits<int>::max();
 constexpr int HASH_TABLE_SIZE = 1000000;
 
-#ifndef DEPTH
-#define DEPTH 6
+#ifndef MIN_DEPTH
+#define MIN_DEPTH 6
 #endif
 
 #ifndef ALPHA_BETA
@@ -432,9 +432,9 @@ void handleUCI() {
             int score;
             int zobrist = board.zobrist() % HASH_TABLE_SIZE;
             if (board.sideToMove() == Color(0)){
-                score = white(board, DEPTH, -INFINITY_VAL, INFINITY_VAL, bestMove, currentEval, positionCounts);
+                score = white(board, MIN_DEPTH, -INFINITY_VAL, INFINITY_VAL, bestMove, currentEval, positionCounts);
             }
-            else score = black(board, DEPTH, -INFINITY_VAL, INFINITY_VAL, bestMove, currentEval, positionCounts);
+            else score = black(board, MIN_DEPTH, -INFINITY_VAL, INFINITY_VAL, bestMove, currentEval, positionCounts);
             positionCounts[zobrist] += 1;
             DEBUG_PRINT("[DEBUG] Best score: " + to_string(score) + ", Best move: " + uci::moveToUci(bestMove));
             cout << "bestmove " << uci::moveToUci(bestMove) << endl;
@@ -497,7 +497,7 @@ void test_evaluateBoard() {
     // Test 8: White pawn on e4
     board = Board("8/8/8/8/4P3/8/8/8 w - - 0 1");
     score = evaluateBoard(board);
-    assert(score == 120);
+    assert(score == 130);
 
     // Test 9: Black knight on g8
     board = Board("6n1/8/8/8/8/8/8/8 w - - 0 1");
@@ -522,19 +522,19 @@ void test_evaluateMove() {
     board = Board("8/8/8/8/8/8/4P3/8 w - - 0 1");
     move = uci::uciToMove(board, "e2e4");
     delta = evaluateMove(board, move);
-    assert(delta == 20);
+    assert(delta == 30);
 
     // Test 2: White captures black pawn
     board = Board("8/8/8/3p4/4P3/8/8/8 w - - 0 1");
     move = uci::uciToMove(board, "e4d5");
     delta = evaluateMove(board, move);
-    assert(delta == 130);
+    assert(delta == 140);
 
     // Test 3: Black pawn e7 to e5
     board = Board("8/4P3/8/8/8/8/8/8 b - - 0 1");
     move = uci::uciToMove(board, "e7e5");
     delta = evaluateMove(board, move);
-    assert(delta == -20);
+    assert(delta == -30);
 
     // Test 4: Knight move
     board = Board("8/8/8/8/8/8/8/N7 w - - 0 1");

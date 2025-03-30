@@ -1,0 +1,188 @@
+Test 1:
+5r2/1pB2rbk/6pn/4n2q/P3B3/1P5P/4R1P1/2Q2R1K b - - 3 33
+
+Test 2:
+rnr5/p4p1k/bp1qp2p/3pP3/Pb1N1Q2/1P3NPB/5P2/R3R1K1 w - - 5 23
+
+Test 3:
+1rbq1rk1/6pp/2p2b2/2n2p2/2p2P2/R3P2B/1P4QP/1NB2KNR b - - 1 19
+
+Test 4:
+R1b4k/6pp/2pP4/2n2rq1/2Q2P1b/1rN1PN2/1P5P/2B2K1R w - - 1 23
+
+Test 5:
+2b2rk1/6pp/1qp5/3p1p2/1rP2P2/B2nP2B/3NN2P/3Q1K1R b - - 2 23
+
+Test 6:
+rn4k1/pb5q/1p2N2p/3pPr2/P3n2Q/1PR2N1P/5PBK/3R4 w - - 1 28
+
+Test 7:
+r5kq/pb6/1p2Nn1p/P2pN3/4n2Q/1PbRR2P/5PBK/8 w - - 1 30
+
+Test 8:
+R1bq2Qk/6pp/2pP4/5r2/n4P1b/1r2Pp2/1P5P/2B2KNR b - - 1 23
+
+Test 9:
+rn3k2/3r2bn/pp1p4/1P1q3p/3P1p2/P3P2P/1BQN1PR1/1K4R1 w - - 2 27
+
+Test 10:
+r1b3k1/p3q3/Pp1n1P1p/3p1r2/7Q/1PR1RN1P/5PB1/7K w - - 1 33
+
+Test 11:
+5rrk/pb6/1p5p/P1npPq2/4nQ2/1P3N1P/2R2PBK/6R1 b - - 1 33
+
+Test 12:
+R1b2r1k/4b3/2pq3p/2n5/1N2QPp1/1r2P3/1P5P/2B2KNR b - - 0 28
+
+Test 13:
+r4k2/4r1b1/qp1p1n2/3P3p/4Q3/P3Pp1P/1B1N1P1R/1K4R1 b - - 1 32
+
+Test 14:
+5k2/r3r1b1/qp1p1n2/7p/3P1p2/P2QPN1P/1B3P1R/1K4R1 b - - 1 32
+
+Test 15:
+1Rb2r1k/4b3/2p4p/2n2p2/1N2pP2/1r2P3/1P1qB2P/2B2KNR b - - 1 28
+
+Test 16:
+r7/4rkb1/Pp1p4/q2n3p/3P4/P3pN1P/1BQ2PR1/1K4R1 w - - 2 33
+
+Test 17:
+r4k2/4r1b1/qp1p4/3n3p/3P1p2/P2QPN1P/1B3P1R/K3R3 b - - 1 32
+
+Test 18:
+4r1rk/p7/b5qp/p2pPp1Q/3Nn3/1P1n1N1P/5P1K/5RRB w - - 2 35
+
+Test 19:
+R4r1k/6q1/2N2b1p/2n2b2/4pP2/1r2P2N/1P5P/2BQ1K1R b - - 2 31
+
+Test 20:
+4rk2/6bQ/qp1p1n2/7p/3P4/P3rN1P/1B3P2/1K2R3 b - - 1 34
+
+Test 21:
+4rk2/4r3/1p1p1nQb/q6p/3P4/P3RN1P/1B3P2/1K3R2 w - - 6 36
+
+Test 22:
+q3rk2/4r3/1p1p1n1b/5Q2/3P3p/P3R2P/1B3P1N/1K2R3 w - - 2 36
+
+Test 23:
+q1Q1rk2/6b1/1p1p1n2/7p/3P4/P3r2P/1B3P1N/1K2R3 b - - 1 35
+
+Test 24:
+q1r2k2/4r3/1p1p1nQb/7p/3P4/P3RN1P/1B3P2/1K3R2 w - - 6 36
+
+Test 25:
+2r4k/1q2b3/2p5/2n2p1p/2B1pP2/1r2P2N/1P5P/2BQ1K1R w - - 0 33
+
+Test 26:
+2b2r1k/1q2b3/2p5/R4p1p/4pP2/1r1BP2N/1P5P/2BQ1K1R w - - 0 33
+
+Test 27:
+4rk2/6b1/1p1p1n2/1q5p/3P4/PQ2r2P/1B1N1P2/1KR5 b - - 1 37
+
+Test 28:
+r1bq1bnr/pppp2pp/4p1k1/2nP1p2/2P5/P4NP1/1P1QPP1P/RNB1KB1R w KQ - 1 8
+
+Test 29:
+r1bqkb1r/1p2pp1p/n4np1/2ppN3/p7/2KP1N1P/PPP1PPP1/1RBQ1B1R b kq - 1 9
+
+Test 30:
+r1bq2nr/p3n1kp/3bpp2/1p4PP/1PBP4/5Q2/P1P1N1P1/R1B2RK1 w - - 2 18
+
+Test 31:
+2rk3r/1p1bb3/2q1p2p/3P2pP/4N1Pn/R2Q4/PB2B3/5R1K w - - 1 33
+
+Test 32:
+3r2n1/qp1b1k2/p2P3p/PPP1p1pP/3bN1Pn/1R6/2Q1B3/2B4K w - - 1 36
+
+Test 33:
+2r3k1/1p6/p2N1n1p/qP2p1pb/PBPb4/7Q/2B5/1R5K w - - 4 43
+
+Test 34:
+2rq2k1/1p1b3n/3B3p/1Pb1p1pP/P3N1P1/3B1Q2/8/1R5K w - - 3 41
+
+Test 35:
+3qN1nk/1p3r2/1P5p/p3p1pb/P1Pb4/BQ6/2B3K1/1R6 b - - 2 45
+
+Test 36:
+rnb1kb1r/1pq2p2/2p2p2/3pp3/p7/N1PP2pP/PP2PP1N/R2QR1KB b kq - 1 13
+
+Test 37:
+r3q2r/p3p1bp/4k1p1/1p1p1p2/1P2nB2/PQ5P/1N3PP1/3RKB1R w K - 4 22
+
+Test 38:
+q5nk/1pr5/1b1N3p/pP2p2b/P1P3p1/1Q1B4/1B4K1/5R2 w - - 2 47
+
+Test 39:
+1r2q1k1/3r3p/p1bP2pb/1p3p2/P1nN1P2/B1n3P1/1P2Q2P/RR3BK1 b - - 1 25
+
+Test 40:
+N3k1r1/1p1n4/8/3p3b/pb3Q1p/3P1p1P/PP3N2/R3qR1K w - - 4 31
+
+Test 41:
+4r1k1/1q1r3p/p1bP1b2/2Bn1p2/pPnN1p2/P2R2P1/6BP/3QR1K1 w - - 2 32
+
+Test 42:
+1q5k/1p2n1r1/1P1N3p/p3pB2/b1Pb4/B5p1/5RK1/4Q3 b - - 1 53
+
+Test 43:
+2q5/5rkp/p2Prb2/1pBN1p2/1P6/P2nRpP1/4Q2P/6K1 b - - 1 35
+
+Test 44:
+1n2k1r1/1p1q1b2/4r3/2P1b3/pP4Bp/P1N4P/3Q4/2R2R1K b - - 4 35
+
+Test 45:
+3qb2k/1p6/1P1N3p/p1P1pBrn/P2b2p1/B4Q2/7K/5R2 b - - 8 56
+
+Test 46:
+3r3k/2qr2b1/2b3p1/P6p/1Pp1P1PP/2P5/3QB2N/R4R1K b - - 6 42
+
+Test 47:
+1qB1b1rk/1p6/1P3n1p/p1P5/P1N2pp1/B7/6K1/bQ6 b - - 1 60
+
+Test 48:
+3q2k1/3P1rb1/p3r3/1pB1np2/1P6/PQNR1pp1/7P/4RK2 b - - 1 41
+
+Test 49:
+4k1b1/1p1nq1r1/1P2r3/2P1b3/p3N2Q/P4B1P/8/1R3R1K b - - 0 38
+
+Test 50:
+r2b3k/r7/P1b3p1/4q1N1/2p1P1BP/2P5/7Q/2R2R1K w - - 5 49
+
+Test 51:
+1r2q1b1/6k1/3p1pp1/3n1p1p/3N1P1P/4P1PB/2rQ3K/R7 b - - 0 46
+
+Test 52:
+1n4k1/4qb2/5r2/2p1b3/pPP2QPp/P7/8/2R1R2K b - - 1 40
+
+Test 53:
+2q5/3Prk2/p3rb2/1p3R2/1Pn1N2P/P4p2/5B1P/3QRK2 w - - 1 46
+
+Test 54:
+4r2k/4r1bN/P1b3p1/8/4PQBP/3q4/2p1R1K1/2R5 b - - 3 53
+
+Test 55:
+1n1q4/4rrk1/5b2/pp1R1p2/1P1B3P/P1N2p2/7P/2Q1RK2 w - - 2 46
+
+Test 56:
+2rq2k1/2r3b1/1P6/2B1Rp1p/pP1R4/5pP1/7P/1N1Q1K2 w - - 1 45
+
+Test 57:
+5r1q/3r3k/4Nb2/p2RRp2/1P5p/P4pP1/5B1P/2Q2K2 w - - 1 48
+
+Test 58:
+5qrk/1p6/1PbN1n1p/p1P1p3/Pb4B1/B3R3/2Q5/6K1 b - - 0 72
+
+Test 59:
+1qr4k/1p6/1b1N1n1p/p3pB2/P1R3p1/B1Q5/8/5K1b w - - 2 72
+
+Test 60:
+3r4/R4bk1/3p1pp1/1qr2p1p/6PP/4PP1B/4Q2K/R7 b - - 1 57
+
+Test 61:
+8/3r1b1k/1R1p1pp1/1Nr2p2/4qPpP/4P1K1/8/R3QB2 b - - 2 61
+
+Test 62:
+8/5bk1/3N4/4rppP/6p1/1q2P1Q1/8/4RBK1 w - - 2 68
+
+Test 63:
+8/3r1b2/5pk1/1Nr2pP1/4P1pP/1q3Q2/7K/4RB2 b - - 2 67
