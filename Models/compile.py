@@ -39,31 +39,63 @@ def parse_depth_input(s):
             sys.exit(1)
 
 def compile_version_new(base_filename, compile_normal, compile_debug, compile_test):
+    # Determine if version is 2.x or above
+    is_nnue = base_filename.startswith("2.")
+
+    # Common NNUE files
+    nnue_files = ["nnue_eval.cpp", "evaluateBoardNNUE.cpp", "nnue_input_from_board.cpp"]
+
+    def make_cmd(debug=False, test=False):
+        cmd = ["g++", "-std=c++17", "-O3", "-march=native", "-flto"]
+        if debug:
+            cmd += ["-D", "DEBUG"]
+        if test:
+            cmd += ["-D", "TEST"]
+
+        output_name = f"bin/Chessape_{base_filename}"
+        if debug:
+            output_name += "_DEBUG"
+        elif test:
+            output_name += "_TEST"
+        cmd += ["-o", output_name]
+
+        # Always include the main file
+        cmd.append(f"Chessape_{base_filename}.cpp")
+
+        # Conditionally add NNUE-related files
+        if is_nnue:
+            cmd.extend(nnue_files)
+
+        cmd.append("-lsqlite3")
+        return cmd
+
+    success = True
     if compile_debug:
-        cmd = ["g++", "-std=c++17", "-O3", "-D", "DEBUG", "-march=native",
-            "-flto", "-o", f"bin/Chessape_{base_filename}_DEBUG", f"Chessape_{base_filename}.cpp"]
+        cmd = make_cmd(debug=True)
         print("Compiling:", ' '.join(cmd))
         result = subprocess.run(cmd)
         if result.returncode != 0:
             print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
-            return False
+            success = False
+
     if compile_normal:
-        cmd = ["g++", "-std=c++17", "-O3", "-march=native",
-            "-flto", "-o", f"bin/Chessape_{base_filename}", f"Chessape_{base_filename}.cpp"]
+        cmd = make_cmd()
         print("Compiling:", ' '.join(cmd))
         result = subprocess.run(cmd)
         if result.returncode != 0:
-            print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
-            return False
+            print(f"Failed to compile NORMAL version for Chessape_{base_filename}", file=sys.stderr)
+            success = False
+
     if compile_test:
-        cmd = ["g++", "-std=c++17", "-O3", "-D", "TEST", "-march=native",
-            "-flto", "-o", f"bin/Chessape_{base_filename}_TEST", f"Chessape_{base_filename}.cpp"]
+        cmd = make_cmd(test=True)
         print("Compiling:", ' '.join(cmd))
         result = subprocess.run(cmd)
         if result.returncode != 0:
-            print(f"Failed to compile DEBUG version for Chessape_{base_filename}", file=sys.stderr)
-            return False
-    return True
+            print(f"Failed to compile TEST version for Chessape_{base_filename}", file=sys.stderr)
+            success = False
+
+    return success
+
 
 
 def compile_versions(base_filename, depths, compile_normal, compile_debug, compile_test):

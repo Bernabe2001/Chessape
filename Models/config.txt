@@ -1,0 +1,11 @@
+hash_table_size=2097152;
+r_factor=0.5
+random_coeff=0.5
+early_game_moves=45
+mid_game_moves=35
+end_game_moves=20
+movetime_minimum=0.20
+incr_min_depth=1
+incr_max_depth=2
+first_min_depth=5
+first_max_depth=16
